@@ -1,0 +1,28 @@
+# environments
+venv/
+env/
+.conda/
+
+# python
+__pycache__/
+*.pyc
+
+# data 
+data/
+
+# models
+models/
+
+# audio
+*.mp3
+*.wav
+
+# jupyter
+.ipynb_checkpoints/
+
+# vscode
+.vscode/
+
+# system
+.DS_Store
+Thumbs.db
