@@ -2,6 +2,7 @@ import os
 import numpy as np
 import torch
 from torch.utils.data import Dataset
+import random
 
 LABELS = {
     "pl": 0,
@@ -33,7 +34,11 @@ class LanguageDataset(Dataset):
         x = np.load(path)
         x = torch.tensor(x, dtype=torch.float32)
 
-        # dodaj channel dimension (CNN)
+        # augumentaation: add noise with 50% probability
+        if random.random() < 0.5:
+            x = x + 0.005 * torch.randn_like(x)
+
+        # add channel dimension 
         x = x.unsqueeze(0)
 
         y = torch.tensor(label, dtype=torch.long)
