@@ -4,38 +4,42 @@ import numpy as np
 import random
 from tqdm import tqdm
 
+SAMPLE_RATE = 16000
+SEGMENT_SECONDS = 3
+SEGMENT_SAMPLES = SAMPLE_RATE * SEGMENT_SECONDS
+N_MFCC = 40
+
+
+def compute_features(audio, sr=SAMPLE_RATE):
+    mfcc = librosa.feature.mfcc(y=audio, sr=sr, n_mfcc=N_MFCC)
+    delta = librosa.feature.delta(mfcc)
+    features = np.vstack([mfcc, delta])
+
+    std = np.std(features)
+    if std == 0:
+        std = 1e-6
+
+    return (features - np.mean(features)) / std
+
+
+def extract_features(file_path, random_crop=False):
+    audio, sr = librosa.load(file_path, sr=SAMPLE_RATE)
+
+    if len(audio) < SEGMENT_SAMPLES:
+        raise ValueError(f"Audio file is too short. Required at least {SEGMENT_SECONDS} seconds.")
+
+    if random_crop:
+        start = random.randint(0, len(audio) - SEGMENT_SAMPLES)
+    else:
+        start = max((len(audio) - SEGMENT_SAMPLES) // 2, 0)
+
+    audio = audio[start:start + SEGMENT_SAMPLES]
+    return compute_features(audio, sr=sr)
 
 def process_file(file_path, output_path):
     try:
-        audio, sr = librosa.load(file_path, sr=16000)
-
-        # skip too short audio files
-        if len(audio) < 3 * sr:
-            return
-
-        # random fragment of 3 seconds
-        start = random.randint(0, len(audio) - 3 * sr)
-        audio = audio[start:start + 3 * sr]
-
-        # MFCC
-        mfcc = librosa.feature.mfcc(y=audio, sr=sr, n_mfcc=40)
-
-        # DELTA (time changes)
-        delta = librosa.feature.delta(mfcc)
-
-        # STACK (80 x time)
-        features = np.vstack([mfcc, delta])
-
-        # NORMALIZATION
-        std = np.std(features)
-        if std == 0:
-            std = 1e-6
-
-        features = (features - np.mean(features)) / std
-
-        # save
+        features = extract_features(file_path, random_crop=True)
         np.save(output_path, features)
-
     except Exception as e:
         print("Error:", file_path, e)
 
