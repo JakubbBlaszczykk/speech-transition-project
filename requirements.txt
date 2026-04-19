@@ -1,0 +1,7 @@
+numpy
+librosa
+tqdm
+torch
+openai-whisper
+deep-translator
+gTTS
