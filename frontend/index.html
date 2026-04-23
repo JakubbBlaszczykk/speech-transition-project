@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Speech-to-Speech Translator</title>
+    <link rel="stylesheet" href="/static/style.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <section class="hero">
+        <p class="eyebrow">Audio translation demo</p>
+        <h1>Speech-to-Speech Translator</h1>
+        <p class="subtitle">
+          Upload an audio file, detect its language with the custom CNN classifier,
+          transcribe it with Whisper, translate it and generate a new spoken output.
+        </p>
+      </section>
+
+      <section class="panel">
+        <form id="translate-form">
+          <label class="field">
+            <span>Input audio</span>
+            <input id="audio-file" type="file" name="audio_file" accept=".mp3,.wav,.m4a,audio/*" required />
+          </label>
+
+          <label class="field">
+            <span>Target language</span>
+            <select id="target-language" name="target_language">
+              <option value="en">English</option>
+              <option value="pl">Polish</option>
+              <option value="pt">Portuguese</option>
+            </select>
+          </label>
+
+          <button id="submit-button" type="submit">Translate audio</button>
+        </form>
+
+        <p id="status" class="status" aria-live="polite"></p>
+      </section>
+
+      <section id="results" class="results hidden">
+        <div class="result-card">
+          <span class="label">Detected language</span>
+          <strong id="source-language">-</strong>
+          <span id="confidence" class="muted"></span>
+        </div>
+
+        <div class="result-card wide">
+          <span class="label">Transcript</span>
+          <p id="transcript"></p>
+        </div>
+
+        <div class="result-card wide">
+          <span class="label">Translated text</span>
+          <p id="translated-text"></p>
+        </div>
+
+        <div class="result-card wide">
+          <span class="label">Generated audio</span>
+          <audio id="output-audio" controls></audio>
+        </div>
+      </section>
+    </main>
+
+    <script src="/static/app.js"></script>
+  </body>
+</html>
