@@ -17,6 +17,9 @@ models/
 *.mp3
 *.wav
 
+# runtime files
+runtime/
+
 # jupyter
 .ipynb_checkpoints/
 

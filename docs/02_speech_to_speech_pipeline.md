@@ -8,71 +8,14 @@ The target pipeline is:
 
 ```text
 Input audio (.mp3)
-   ↓
-Language identification
-   ↓
-Speech-to-text (ASR)
-   ↓
-Machine translation
-   ↓
-Text-to-speech (TTS)
-   ↓
-Output audio (.mp3)
-
-The system currently works for three languages:
-- Polish (pl)
-- English (en)
-- Portuguese (pt)
-```
-## 2. General System Architecture
-The implemented pipeline consists of four main stages:
-
-### 1. Language Identification
-The first stage uses the custom CNN-based classifier developed earlier in the project.
-
-Its task is to identify the spoken language from the input audio file and return one of the supported classes:
-
-- pl
-- en
-- pt
-This is the **custom machine learning component** of the project.
-
-### 2. Automatic Speech Recognition (ASR)
-After detecting the language, the audio is transcribed into text using **Whisper**.
-
-The predicted language is passed to the ASR module as a hint, so transcription is performed in the detected source language.
-
-### 3. Translation
-The transcribed text is translated from the detected source language to the target language.
-
-At the current stage, translation is handled by an external translation library.
-
-### 4. Text-to-Speech (TTS)
-Finally, the translated text is converted back into speech and saved as an output audio file.
-```
-# 02. Speech-to-Speech Pipeline
-
-## 1. Goal
-
-The goal of this stage was to extend the custom language classification model into a complete **speech-to-speech system**.
-
-The target pipeline is:
-
-```text
-Input audio (.mp3)
-   ↓
-Language identification
-   ↓
-Speech-to-text (ASR)
-   ↓
-Machine translation
-   ↓
-Text-to-speech (TTS)
-   ↓
-Output audio (.mp3)
+   -> Language identification
+   -> Speech-to-text (ASR)
+   -> Machine translation
+   -> Text-to-speech (TTS)
+   -> Output audio (.mp3)
 ```
 
-The system currently works for three languages:
+The system currently works with three languages:
 
 * Polish (`pl`)
 * English (`en`)
@@ -82,7 +25,7 @@ The system currently works for three languages:
 
 ## 2. General System Architecture
 
-The implemented pipeline consists of four main stages:
+The implemented pipeline consists of four main stages.
 
 ### 1. Language Identification
 
@@ -152,9 +95,42 @@ Responsible for:
 
 * connecting all previous modules into one end-to-end pipeline
 
+### `app/cli.py`
+
+Responsible for:
+
+* running the complete pipeline from the terminal
+* accepting an input audio path, target language and optional output path
+* printing a JSON summary of the result
+
+### `app/api.py`
+
+Responsible for:
+
+* exposing the pipeline through a FastAPI backend
+* accepting uploaded audio files
+* returning detected language, transcript, translation and output audio URL
+
 ---
 
-## 4. Processing Flow
+## 4. Web Interface
+
+A simple frontend was added for demonstration purposes.
+
+The frontend allows the user to:
+
+* upload an audio file
+* select the target language
+* run the full speech-to-speech pipeline
+* inspect the detected language and classifier confidence
+* read the transcript and translated text
+* play the generated output audio in the browser
+
+The frontend was created with assistance from **Codex / AI** as a development support tool. The purpose of this interface is to make the existing speech-to-speech pipeline easier to test and present.
+
+---
+
+## 5. Processing Flow
 
 The implemented processing flow is:
 
@@ -168,7 +144,7 @@ This means the project already supports an end-to-end **audio-to-audio translati
 
 ---
 
-## 5. Example Workflow
+## 6. Example Workflow
 
 Example scenario:
 
@@ -189,7 +165,7 @@ depending on the chosen target language.
 
 ---
 
-## 6. Testing and Observations
+## 7. Testing and Observations
 
 The pipeline was tested on manually selected audio samples for all three supported languages.
 
@@ -199,6 +175,7 @@ The pipeline was tested on manually selected audio samples for all three support
 * Whisper transcription works correctly for verified test recordings
 * translation and TTS stages produce valid output audio files
 * English and Portuguese examples produced good end-to-end results
+* the FastAPI interface makes the system easier to demonstrate
 
 ### Main issue observed
 
@@ -214,7 +191,7 @@ This means that the overall quality of the system depends strongly on the qualit
 
 ---
 
-## 7. Dataset Quality Issue
+## 8. Dataset Quality Issue
 
 During testing, an important issue was discovered in the dataset:
 
@@ -232,7 +209,7 @@ This should be treated as an important limitation of the current system.
 
 ---
 
-## 8. Current Project Status
+## 9. Current Project Status
 
 At this stage, the project already includes a working **speech-to-speech pipeline for audio files**.
 
@@ -243,12 +220,14 @@ Implemented functionality:
 * speech transcription with Whisper
 * text translation
 * speech synthesis to output `.mp3`
+* command-line interface
+* FastAPI web interface
 
 This satisfies the core idea of a speech-to-speech system for file-based input.
 
 ---
 
-## 9. Limitations
+## 10. Limitations
 
 The current version still has several limitations:
 
@@ -257,10 +236,11 @@ The current version still has several limitations:
 * noisy or mislabeled training data can reduce classification performance
 * external libraries are used for ASR, translation and TTS
 * inference currently runs on CPU, which makes processing slower
+* the current frontend is a demo interface and can still be improved
 
 ---
 
-## 10. Possible Future Improvements
+## 11. Possible Future Improvements
 
 The next logical improvements are:
 
@@ -284,9 +264,13 @@ Train the classifier on cleaner and better-balanced data.
 
 Prepare a larger manually verified test set for all supported languages.
 
+### 6. Improved user interface
+
+Extend the frontend with microphone recording, better loading states, clearer confidence visualization and a more polished demo flow.
+
 ---
 
-## 11. Summary
+## 12. Summary
 
 This stage of the project successfully transformed the custom language classifier into a complete **speech-to-speech pipeline**.
 
@@ -297,5 +281,6 @@ The final system is able to:
 * transcribe the speech
 * translate the content
 * generate translated speech as output audio
+* expose the workflow through both CLI and web interface
 
-The core original contribution remains the custom CNN-based language identification model, while external tools are used for ASR, translation and TTS.
+The core original contribution remains the custom CNN-based language identification model, while external tools are used for ASR, translation and TTS. The web frontend was created with support from Codex / AI to make the project easier to present and test.

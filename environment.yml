@@ -1,0 +1,19 @@
+name: speech-env
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.10
+  - ffmpeg
+  - pip
+  - pip:
+      - numpy
+      - librosa
+      - tqdm
+      - torch
+      - openai-whisper
+      - deep-translator
+      - gTTS
+      - fastapi
+      - uvicorn
+      - python-multipart
