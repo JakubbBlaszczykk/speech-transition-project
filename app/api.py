@@ -1,4 +1,5 @@
 import shutil
+import subprocess
 import sys
 from pathlib import Path
 from uuid import uuid4
@@ -37,6 +38,25 @@ def get_pipeline():
     return _pipeline
 
 
+def convert_to_wav(input_path: Path, output_path: Path):
+    ffmpeg_executable = shutil.which("ffmpeg")
+    if ffmpeg_executable is None:
+        raise RuntimeError("ffmpeg is not available in PATH.")
+
+    command = [
+        ffmpeg_executable,
+        "-y",
+        "-i",
+        str(input_path),
+        "-ar",
+        "16000",
+        "-ac",
+        "1",
+        str(output_path),
+    ]
+    subprocess.run(command, check=True, capture_output=True)
+
+
 @app.get("/")
 def index():
     return FileResponse(FRONTEND_DIR / "index.html")
@@ -54,23 +74,25 @@ def translate_audio(
         raise HTTPException(status_code=400, detail="Audio file is required.")
 
     suffix = Path(audio_file.filename).suffix.lower()
-    if suffix not in {".mp3", ".wav", ".m4a"}:
+    if suffix not in {".mp3", ".wav", ".m4a", ".webm", ".ogg"}:
         raise HTTPException(
             status_code=400,
-            detail="Unsupported file type. Use .mp3, .wav or .m4a.",
+            detail="Unsupported file type. Use microphone recording or upload .mp3, .wav, .m4a, .webm or .ogg.",
         )
 
     job_id = uuid4().hex
-    input_path = UPLOAD_DIR / f"{job_id}{suffix}"
+    raw_input_path = UPLOAD_DIR / f"{job_id}{suffix}"
+    pipeline_input_path = UPLOAD_DIR / f"{job_id}.wav"
     output_path = OUTPUT_DIR / f"{job_id}_{target_language}.mp3"
 
-    with input_path.open("wb") as buffer:
+    with raw_input_path.open("wb") as buffer:
         shutil.copyfileobj(audio_file.file, buffer)
 
     try:
+        convert_to_wav(raw_input_path, pipeline_input_path)
         pipeline = get_pipeline()
         result = pipeline.run(
-            audio_path=str(input_path),
+            audio_path=str(pipeline_input_path),
             target_language=target_language,
             output_path=str(output_path),
         )

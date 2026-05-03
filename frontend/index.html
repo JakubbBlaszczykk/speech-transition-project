@@ -9,19 +9,22 @@
   <body>
     <main class="shell">
       <section class="hero">
-        <p class="eyebrow">Audio translation demo</p>
+        <p class="eyebrow">Live microphone demo</p>
         <h1>Speech-to-Speech Translator</h1>
         <p class="subtitle">
-          Upload an audio file, detect its language with the custom CNN classifier,
-          transcribe it with Whisper, translate it and generate a new spoken output.
+          Record audio directly from your microphone, detect its language with the
+          custom CNN classifier, transcribe it with Whisper, translate it and
+          generate a new spoken output.
         </p>
       </section>
 
       <section class="panel">
         <form id="translate-form">
           <label class="field">
-            <span>Input audio</span>
-            <input id="audio-file" type="file" name="audio_file" accept=".mp3,.wav,.m4a,audio/*" required />
+            <span>Microphone</span>
+            <select id="microphone-select" name="microphone">
+              <option value="">Default microphone</option>
+            </select>
           </label>
 
           <label class="field">
@@ -33,8 +36,28 @@
             </select>
           </label>
 
-          <button id="submit-button" type="submit">Translate audio</button>
+          <div class="controls">
+            <button id="start-recording" type="button">Start recording</button>
+            <button id="stop-recording" type="button" disabled>Stop recording</button>
+            <button id="submit-button" type="submit" disabled>Translate recording</button>
+          </div>
         </form>
+
+        <div class="recording-meta">
+          <div class="chip">
+            <span class="chip-label">Recording state</span>
+            <strong id="recording-state">Idle</strong>
+          </div>
+          <div class="chip">
+            <span class="chip-label">Duration</span>
+            <strong id="recording-duration">00:00</strong>
+          </div>
+        </div>
+
+        <div class="preview hidden" id="recording-preview-panel">
+          <span class="label">Recorded input</span>
+          <audio id="recorded-audio" controls></audio>
+        </div>
 
         <p id="status" class="status" aria-live="polite"></p>
       </section>
