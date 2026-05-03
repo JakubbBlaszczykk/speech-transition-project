@@ -7,7 +7,7 @@ The goal of this stage was to extend the custom language classification model in
 The target pipeline is:
 
 ```text
-Input audio (.mp3)
+Input audio (.mp3 or microphone)
    -> Language identification
    -> Speech-to-text (ASR)
    -> Machine translation
@@ -108,18 +108,34 @@ Responsible for:
 Responsible for:
 
 * exposing the pipeline through a FastAPI backend
-* accepting uploaded audio files
+* accepting browser microphone recordings
+* converting recorded audio into a pipeline-friendly format
 * returning detected language, transcript, translation and output audio URL
 
 ---
 
-## 4. Web Interface
+## 4. Data Source
+
+The language identification dataset used in this project was assembled from Mozilla Data Collective resources:
+
+* [Common Voice Scripted Speech 25.0 - Polish](https://mozilladatacollective.com/datasets/cmn27nz69015hmm0720txf781)
+* [Common Voice Scripted Speech 25.0 - Portuguese](https://mozilladatacollective.com/datasets/cmn29f4cb017bmm07pd9yd8mw)
+* [Common Voice Spontaneous Speech 3.0 - English](https://mozilladatacollective.com/datasets/cmn1pv5hi00uto1072y1074y7)
+
+The Common Voice datasets are published on Mozilla Data Collective as `ASR` datasets in `MP3` format under the `CC0-1.0` license.
+
+During practical testing, some files appeared to be noisy or mislabeled, which is important because this can directly affect language classifier performance.
+
+---
+
+## 5. Web Interface
 
 A simple frontend was added for demonstration purposes.
 
 The frontend allows the user to:
 
-* upload an audio file
+* select a microphone input device
+* record audio directly in the browser
 * select the target language
 * run the full speech-to-speech pipeline
 * inspect the detected language and classifier confidence
@@ -130,21 +146,21 @@ The frontend was created with assistance from **Codex / AI** as a development su
 
 ---
 
-## 5. Processing Flow
+## 6. Processing Flow
 
 The implemented processing flow is:
 
-1. Load input `.mp3` file
+1. Load input `.mp3` file or browser microphone recording
 2. Detect spoken language with the custom classifier
 3. Transcribe speech using Whisper
 4. Translate transcript into the target language
 5. Generate translated speech as output `.mp3`
 
-This means the project already supports an end-to-end **audio-to-audio translation workflow** for file input.
+This means the project already supports an end-to-end **audio-to-audio translation workflow** for both file input and browser-based microphone recording.
 
 ---
 
-## 6. Example Workflow
+## 7. Example Workflow
 
 Example scenario:
 
@@ -165,7 +181,7 @@ depending on the chosen target language.
 
 ---
 
-## 7. Testing and Observations
+## 8. Testing and Observations
 
 The pipeline was tested on manually selected audio samples for all three supported languages.
 
@@ -176,6 +192,8 @@ The pipeline was tested on manually selected audio samples for all three support
 * translation and TTS stages produce valid output audio files
 * English and Portuguese examples produced good end-to-end results
 * the FastAPI interface makes the system easier to demonstrate
+* the browser frontend adds microphone-based interaction without changing the core pipeline
+* in practical microphone tests, `pl -> en` produced good results and `pl -> pt` was also usable
 
 ### Main issue observed
 
@@ -191,7 +209,7 @@ This means that the overall quality of the system depends strongly on the qualit
 
 ---
 
-## 8. Dataset Quality Issue
+## 9. Dataset Quality Issue
 
 During testing, an important issue was discovered in the dataset:
 
@@ -209,13 +227,26 @@ This should be treated as an important limitation of the current system.
 
 ---
 
-## 9. Current Project Status
+## 10. Evaluation Limitations
 
-At this stage, the project already includes a working **speech-to-speech pipeline for audio files**.
+The final practical evaluation also has a human-side limitation:
+
+* the author is a native Polish speaker
+* evaluation of English and Portuguese output was therefore less reliable than evaluation of Polish input and transcription
+* because of this, directions such as `pl -> en` and `pl -> pt` could be tested functionally, but subtle errors in English and Portuguese fluency may still remain
+
+This should be considered when interpreting the final demo results.
+
+---
+
+## 11. Current Project Status
+
+At this stage, the project already includes a working **speech-to-speech pipeline for audio files and browser microphone input**.
 
 Implemented functionality:
 
 * input from `.mp3` file
+* microphone recording through the browser frontend
 * language identification with a custom classifier
 * speech transcription with Whisper
 * text translation
@@ -227,50 +258,47 @@ This satisfies the core idea of a speech-to-speech system for file-based input.
 
 ---
 
-## 10. Limitations
+## 12. Limitations
 
 The current version still has several limitations:
 
-* input works only for audio files, not microphone streaming
+* microphone input currently works through the browser frontend rather than a standalone desktop recorder
 * system quality depends on the accuracy of the language classifier
 * noisy or mislabeled training data can reduce classification performance
 * external libraries are used for ASR, translation and TTS
 * inference currently runs on CPU, which makes processing slower
 * the current frontend is a demo interface and can still be improved
+* final quality assessment for English and Portuguese is limited by the evaluator's non-native proficiency
 
 ---
 
-## 11. Possible Future Improvements
+## 13. Possible Future Improvements
 
 The next logical improvements are:
 
-### 1. Microphone input
-
-Add recording from microphone instead of relying only on pre-recorded `.mp3` files.
-
-### 2. Real-time audio playback
+### 1. Real-time audio playback
 
 Play generated translated speech directly through speakers.
 
-### 3. Better dataset curation
+### 2. Better dataset curation
 
 Clean mislabeled or noisy samples from the training data.
 
-### 4. Improved language classifier
+### 3. Improved language classifier
 
 Train the classifier on cleaner and better-balanced data.
 
-### 5. More robust evaluation
+### 4. More robust evaluation
 
 Prepare a larger manually verified test set for all supported languages.
 
-### 6. Improved user interface
+### 5. Improved user interface
 
 Extend the frontend with microphone recording, better loading states, clearer confidence visualization and a more polished demo flow.
 
 ---
 
-## 12. Summary
+## 14. Summary
 
 This stage of the project successfully transformed the custom language classifier into a complete **speech-to-speech pipeline**.
 
